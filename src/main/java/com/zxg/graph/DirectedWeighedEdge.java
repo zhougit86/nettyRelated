@@ -7,7 +7,7 @@ import java.util.Objects;
  *
  * 代表有权重的，有向边
  */
-public class DirectedWeighedEdge {
+public class DirectedWeighedEdge implements Comparable<DirectedWeighedEdge> {
     private String from;
     private String to;
     private int weight;
@@ -83,6 +83,11 @@ public class DirectedWeighedEdge {
         // now we know other is a non - null Student
         DirectedWeighedEdge s = (DirectedWeighedEdge)other;
         return Objects.equals(this.from, s.from) && Objects.equals(this.to, s.to);
+    }
+
+    @Override
+    public int compareTo(DirectedWeighedEdge o){
+        return this.getWeight() - o.getWeight();
     }
 
 }
