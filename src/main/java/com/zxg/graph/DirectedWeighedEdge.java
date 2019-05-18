@@ -1,5 +1,7 @@
 package com.zxg.graph;
 
+import com.zxg.graph.exception.InvalidInputException;
+
 import java.util.Objects;
 
 /**
@@ -15,9 +17,10 @@ public class DirectedWeighedEdge implements Comparable<DirectedWeighedEdge> {
     //根据表达式生成一条边
     public DirectedWeighedEdge(String edgeExpress) throws Exception {
 
+        //todo: the question is unclear, as mentioned only A-D used, but E also exists?
         boolean isMatch = edgeExpress.matches("^[A-Z]{2}\\d+$");
         if (!isMatch) {
-            throw new Exception("edge format invalid");
+            throw new InvalidInputException(edgeExpress);
         }
 
         this.from = edgeExpress.substring(0, 1);

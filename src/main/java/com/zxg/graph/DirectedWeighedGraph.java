@@ -31,11 +31,17 @@ public class DirectedWeighedGraph {
                     nodeAdjacentEdges = new HashSet<>();
                 }
 
-                //As mentioned in question:
+                //todo: As mentioned in question:
                 // A given route will never appear more than once
                 //no need to check the duplicate add
                 nodeAdjacentEdges.add(edgeObjct);
                 adj.put(edgeObjct.getFrom(), nodeAdjacentEdges);
+
+                HashSet<DirectedWeighedEdge> nodeAdjacentEdgeToNode = adj.get(edgeObjct.getTo());
+                if (nodeAdjacentEdgeToNode == null) {
+                    nodeAdjacentEdgeToNode = new HashSet<>();
+                    adj.put(edgeObjct.getTo(), nodeAdjacentEdgeToNode);
+                }
             } catch (Exception e) {
                 System.err.printf("%s parse error %s, skip!!!\n", edgeExpress, e.getMessage());
                 continue;
@@ -43,7 +49,7 @@ public class DirectedWeighedGraph {
         }
     }
 
-    public HashMap<String, HashSet<DirectedWeighedEdge>> getAdj(){
+    public HashMap<String, HashSet<DirectedWeighedEdge>> getAdj() {
         return adj;
     }
 
@@ -74,19 +80,19 @@ public class DirectedWeighedGraph {
     }
 
     // for case 6
-    public LinkedList<LinkedList<String>> pathMaxStops(String start, String end, int maxStop){
+    public LinkedList<LinkedList<String>> pathMaxStops(String start, String end, int maxStop) {
         RecursiveTravelAtMost recursiveTravel = new RecursiveTravelAtMost(this.adj, start, end, maxStop);
         return recursiveTravel.getPossibleRoute();
     }
 
     // for case 7
-    public LinkedList<LinkedList<String>> pathExactStops(String start, String end, int maxStop){
+    public LinkedList<LinkedList<String>> pathExactStops(String start, String end, int maxStop) {
         RecursiveTravelExact recursiveTravel = new RecursiveTravelExact(this.adj, start, end, maxStop);
         return recursiveTravel.getPossibleRoute();
     }
 
     // for case 10
-    public LinkedList<List<String>> pathMaxDistance(String start, String end, int maxStop){
+    public LinkedList<List<String>> pathMaxDistance(String start, String end, int maxStop) {
         RecursiveTravelAtMostDist recursiveTravel = new RecursiveTravelAtMostDist(this.adj, start, end, maxStop);
         return recursiveTravel.getPossibleRoute();
     }
@@ -95,7 +101,7 @@ public class DirectedWeighedGraph {
     public int shortestPath(String source, String target) throws Exception {
         ShortestPathHelper shortestPathHelper = new ShortestPathHelper(source, adj);
         Integer distance = shortestPathHelper.distanceToNode(target);
-        if (distance.equals(Integer.MAX_VALUE)){
+        if (distance.equals(Integer.MAX_VALUE)) {
             throw new UnreachableException();
         }
 
@@ -113,18 +119,18 @@ public class DirectedWeighedGraph {
             }
 
             HashSet<DirectedWeighedEdge> adjEdge = adj.get(lastNodeToSource);
-            for (DirectedWeighedEdge edgeBackToSelf: adjEdge){
-                if (edgeBackToSelf.getTo().equals(source)){
+            for (DirectedWeighedEdge edgeBackToSelf : adjEdge) {
+                if (edgeBackToSelf.getTo().equals(source)) {
                     Integer sourceToLastNodeDistance = shortestPathHelper.distanceToNode(lastNodeToSource);
                     if (!sourceToLastNodeDistance.equals(Integer.MAX_VALUE) &&
-                            (edgeBackToSelf.getWeight() + sourceToLastNodeDistance) < cycleDistance ){
+                            (edgeBackToSelf.getWeight() + sourceToLastNodeDistance) < cycleDistance) {
                         cycleDistance = edgeBackToSelf.getWeight() + sourceToLastNodeDistance;
                     }
                 }
             }
         }
 
-        if (cycleDistance.equals(Integer.MAX_VALUE)){
+        if (cycleDistance.equals(Integer.MAX_VALUE)) {
             throw new UnreachableException();
         }
 

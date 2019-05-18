@@ -48,22 +48,26 @@ public class StartUp {
 
 
 
-
+        //#6
         System.err.println(graph.pathMaxStops("C", "C", 3));
+        //#7
         System.err.println(graph.pathExactStops("A", "C", 4));
-        System.err.println(graph.pathMaxDistance("C", "C", 30));
 
+        //#8
         try{
             System.err.println(graph.shortestPath("A", "C"));
         }catch (Exception e){
             e.printStackTrace();
         }
 
-
+        //#9
         try{
             System.err.println(graph.shortestCycle("C"));
         }catch (Exception e){
             e.printStackTrace();
         }
+
+        //#10
+        System.err.println(graph.pathMaxDistance("C", "C", 30));
     }
 }
