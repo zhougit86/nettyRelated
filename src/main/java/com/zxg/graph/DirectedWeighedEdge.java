@@ -4,7 +4,7 @@ import java.util.Objects;
 
 /**
  * Created by zhou1 on 2019/5/17.
- *
+ * <p>
  * 代表有权重的，有向边
  */
 public class DirectedWeighedEdge implements Comparable<DirectedWeighedEdge> {
@@ -16,15 +16,14 @@ public class DirectedWeighedEdge implements Comparable<DirectedWeighedEdge> {
     public DirectedWeighedEdge(String edgeExpress) throws Exception {
 
         boolean isMatch = edgeExpress.matches("^[A-Z]{2}\\d+$");
-        if(!isMatch){
+        if (!isMatch) {
             throw new Exception("edge format invalid");
         }
 
-        this.from = edgeExpress.substring(0,1);
-        this.to = edgeExpress.substring(1,2);
-        this.weight = Integer.valueOf(edgeExpress.substring(2)) ;
+        this.from = edgeExpress.substring(0, 1);
+        this.to = edgeExpress.substring(1, 2);
+        this.weight = Integer.valueOf(edgeExpress.substring(2));
     }
-
 
 
     public String getFrom() {
@@ -52,8 +51,8 @@ public class DirectedWeighedEdge implements Comparable<DirectedWeighedEdge> {
     }
 
     @Override
-    public String toString(){
-        return String.format("%s to %s weight %d",from,to,weight);
+    public String toString() {
+        return String.format("%s to %s weight %d", from, to, weight);
     }
 
     @Override
@@ -66,27 +65,27 @@ public class DirectedWeighedEdge implements Comparable<DirectedWeighedEdge> {
     }
 
     @Override
-    public boolean equals(Object other){
-        if(other == this){
+    public boolean equals(Object other) {
+        if (other == this) {
             return true;
         }
         // must return false if the explicit parameter is null
-        if(other == null){
+        if (other == null) {
             return false;
         }
 
         // if the classes don ' t match , they can ' t be equal
-        if(other.getClass()!= this.getClass()){
+        if (other.getClass() != this.getClass()) {
             return false;
         }
 
         // now we know other is a non - null Student
-        DirectedWeighedEdge s = (DirectedWeighedEdge)other;
+        DirectedWeighedEdge s = (DirectedWeighedEdge) other;
         return Objects.equals(this.from, s.from) && Objects.equals(this.to, s.to);
     }
 
     @Override
-    public int compareTo(DirectedWeighedEdge o){
+    public int compareTo(DirectedWeighedEdge o) {
         return this.getWeight() - o.getWeight();
     }
 
