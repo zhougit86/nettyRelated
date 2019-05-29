@@ -5,6 +5,8 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,6 +17,8 @@ import java.util.LinkedList;
  * Created by zhou1 on 2019/5/27.
  */
 public class HdfsUtil {
+    private static Logger LOG = LoggerFactory.getLogger(HdfsUtil.class);
+
     private String hdfsUrl;
     private String hdfsPath;
     private String hdfsPattern;
@@ -43,7 +47,8 @@ public class HdfsUtil {
             for(FileStatus f:fileStatus){
 //                System.out.println(f.getPath().getName());
                 if (f.isFile() && f.getPath().getName().matches(hdfsPattern)){
-                    System.out.println(f.getPath());
+                    LOG.info("{} matches the pattern",f.getPath());
+//                    System.out.println(f.getPath());
                     list.add(f);
                 }
             }
