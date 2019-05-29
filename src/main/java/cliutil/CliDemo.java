@@ -1,5 +1,6 @@
 package cliutil;
 
+import cliutil.cosutil.CosUtil;
 import cliutil.hdfsutil.HdfsUtil;
 import cliutil.kafkautil.MyKafkaProduce;
 import org.apache.commons.cli.*;
@@ -20,16 +21,20 @@ public class CliDemo {
 
     private static Options opts = new Options();
 
-    private static Option opt_hdfs = new Option("hd","hdfs",true ,"hdfs ip");
-    private static Option opt_path = new Option("p","path",true ,"hdfs path");
-    private static Option opt_pattern = new Option("pt","help",true ,"hdfs pattern");
+    private static Option opt_hdfs = new Option("hd","hdfs",true ,"hdfs ip, eg:192.168.13.128:9000");
+    private static Option opt_path = new Option("p","path",true ,"hdfs path, eg:/tmp");
+    private static Option opt_pattern = new Option("pt","pattern",true ,"hdfs pattern, eg:.*");
     private static Option opt_name = new Option( "n","name"
             ,true, "name for this specific run" );
+    private static Option opt_kfkip = new Option("kip","kafkaip",true ,"kafka broker ip, eg:192.168.13.128:9092");
+    private static Option opt_kfktopic = new Option("kt","kafkatopic",true ,"kafka topic, eg:demo_topic");
 
     private static String hdfsUrl;
     private static String hdfsPath;
     private static String filePattern;
     private static String executeName;
+    private static String kafkaBrokerIp;
+    private static String kafkaTopic;
 
     static {
 
@@ -37,11 +42,15 @@ public class CliDemo {
         opt_path.setRequired(true);
         opt_pattern.setRequired(false);
         opt_name.setRequired(true);
+        opt_kfkip.setRequired(true);
+        opt_kfktopic.setRequired(true);
 
         opts.addOption(opt_hdfs);
         opts.addOption(opt_path);
         opts.addOption(opt_pattern);
         opts.addOption(opt_name);
+        opts.addOption(opt_kfkip);
+        opts.addOption(opt_kfktopic);
     }
 
     public static void main(String[] args){
@@ -62,6 +71,8 @@ public class CliDemo {
         hdfsUrl = line.getOptionValue("hd");
         hdfsPath = line.getOptionValue("p");
         executeName = line.getOptionValue("n");
+        kafkaBrokerIp = line.getOptionValue("kip");
+        kafkaTopic = line.getOptionValue("kt");
         filePattern = line.getOptionValue("pt")==null ? ".*":line.getOptionValue("pt");
 
         DateFormat simpleFormat = new SimpleDateFormat("YYMMdd-HHmmss");
@@ -84,10 +95,14 @@ public class CliDemo {
 
         //todo:check the total volume of all the files
 
-        MyKafkaProduce myKafkaProducer = new MyKafkaProduce(hdfsUtil);
+        MyKafkaProduce myKafkaProducer = new MyKafkaProduce(hdfsUtil,kafkaBrokerIp,kafkaTopic);
         for (FileStatus fileStatus: fileList){
             LOG.info("handling file {}",fileStatus.getPath().toString());
             myKafkaProducer.avroProduce(fileStatus);
+            CosUtil.initBackUpDir(executeName, fileStatus, hdfsUtil.fs );
+            LOG.info("handling file finish {}",fileStatus.getPath().toString());
         }
+
+        CosUtil.closeClient();
     }
 }

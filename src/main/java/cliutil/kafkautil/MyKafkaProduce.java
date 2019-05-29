@@ -38,15 +38,19 @@ import java.util.concurrent.ExecutionException;
 public class MyKafkaProduce {
     private static Logger LOG = LoggerFactory.getLogger(MyKafkaProduce.class);
 
-    private String topic = "migration_topic";
-    private String kfkAddr = "10.0.68.230:9092";
+    private String topic ;
+    private String kfkAddr;
 
     private Integer bufSize = 800000;
 
     private org.apache.kafka.clients.producer.KafkaProducer<String, String> producer;
     private HdfsUtil hdfsUtil;
 
-    public MyKafkaProduce(HdfsUtil hdfsUtilInput){
+    public MyKafkaProduce(HdfsUtil hdfsUtilInput,String kfkAddrInput,String topicInput){
+        this.kfkAddr = kfkAddrInput;
+        this.topic = topicInput;
+
+
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kfkAddr);
 //        props.put("acks", "all");
@@ -73,7 +77,7 @@ public class MyKafkaProduce {
             while ((record = myParquetReader.readRecord())!=null){
 
                 try{
-                    RecordMetadata result = producer.send(new ProducerRecord<String, String>(topic
+                    RecordMetadata result = producer.send(new ProducerRecord<String, String>(this.topic
                             ,fileKey,record.toString())).get();
                 }catch (Exception e){
                     LOG.error("send {} record to kafka error",fileStatus.getPath());
