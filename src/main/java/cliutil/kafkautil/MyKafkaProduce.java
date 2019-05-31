@@ -1,8 +1,10 @@
 package cliutil.kafkautil;
 
 
+import cliutil.CliDemo;
 import cliutil.hdfsutil.HdfsUtil;
 import cliutil.parquetutil.MyParquetReader;
+import cliutil.secutil.SecUtil;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -28,11 +30,14 @@ public class MyKafkaProduce {
 
     private org.apache.kafka.clients.producer.KafkaProducer<String, String> producer;
     private HdfsUtil hdfsUtil;
+    private SecUtil se;
+    private String aes_key;
 
-    public MyKafkaProduce(HdfsUtil hdfsUtilInput, String kfkAddrInput, String topicInput) {
+    public MyKafkaProduce(HdfsUtil hdfsUtilInput, String kfkAddrInput, String topicInput, String aes_key) {
         this.kfkAddr = kfkAddrInput;
         this.topic = topicInput;
-
+        se = new SecUtil();
+        this.aes_key = aes_key;
 
         Properties props = new Properties();
         try {
@@ -74,8 +79,9 @@ public class MyKafkaProduce {
                 try {
 //                    RecordMetadata result = producer.send(new ProducerRecord<String, String>(this.topic
 //                            ,fileKey,record.toString())).get();
+
                     producer.send(new ProducerRecord<>(this.topic
-                            , "", record.toString())).get();
+                            , "", se.AESEncode(this.aes_key,record.toString()))).get();
                 } catch (Exception e) {
                     LOG.error("send {} record to kafka error", fileStatus.getPath());
                 }
