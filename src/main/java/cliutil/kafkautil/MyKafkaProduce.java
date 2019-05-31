@@ -4,8 +4,7 @@ package cliutil.kafkautil;
 import cliutil.hdfsutil.HdfsUtil;
 import cliutil.hdfsutil.MyReader;
 import cliutil.parquetutil.MyParquetReader;
-import com.twitter.bijection.Injection;
-import com.twitter.bijection.avro.GenericAvroCodecs;
+import cliutil.serialutil.SecSerializer;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
@@ -15,15 +14,13 @@ import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 import org.apache.kafka.common.serialization.ByteArraySerializer;
-import org.apache.kafka.common.serialization.ByteBufferSerializer;
+
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Properties;
@@ -52,6 +49,11 @@ public class MyKafkaProduce {
 
 
         Properties props = new Properties();
+        try{
+            props.load(new FileInputStream("jaas.properties"));
+        }catch (IOException e){
+            e.printStackTrace();
+        }
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kfkAddr);
 //        props.put("acks", "all");
         props.put(ProducerConfig.RETRIES_CONFIG, 1);
@@ -62,7 +64,9 @@ public class MyKafkaProduce {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 //        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
 //        props.put("min.insync.replicas",3);
-        //设置分区类,根据key进行数据分区
+
+        props.put("sasl.jaas.config",
+                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"ckafka-g0widy27#yonghui_yunchao\" password=\"yonghuitencent123\";");
         producer = new org.apache.kafka.clients.producer.KafkaProducer<String, String>(props);
         hdfsUtil = hdfsUtilInput;
     }
@@ -77,8 +81,10 @@ public class MyKafkaProduce {
             while ((record = myParquetReader.readRecord())!=null){
 
                 try{
-                    RecordMetadata result = producer.send(new ProducerRecord<String, String>(this.topic
-                            ,fileKey,record.toString())).get();
+//                    RecordMetadata result = producer.send(new ProducerRecord<String, String>(this.topic
+//                            ,fileKey,record.toString())).get();
+                    producer.send(new ProducerRecord<String, String>(this.topic
+                            ,"",record.toString())).get();
                 }catch (Exception e){
                     LOG.error("send {} record to kafka error",fileStatus.getPath());
                 }

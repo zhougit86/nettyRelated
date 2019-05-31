@@ -27,8 +27,8 @@ import java.util.concurrent.Executors;
  */
 public class CosUtil {
     private static Logger LOG = LoggerFactory.getLogger(CosUtil.class);
-    private static final String BUCKET_NAME = "test-1255000077"; //桶的名称
-    private static final String REGION = "shanghai";//区域北京则  beijing
+    private static final String BUCKET_NAME = "test-1255000077";
+    private static final String REGION = "shanghai";
     private static final String END_POINT_SUFFIX = "cos.shanghai.tce.yonghuicloud.cn";
     private static final String SEC_ID = "AKID0g0yaqxIUw2mBEsGGwjAG2SYJilkCeZ8";
     private static final String SEC_KEY = "PTBXXCVS4KEn0rMVIkqay0h21eW3E3Xf";

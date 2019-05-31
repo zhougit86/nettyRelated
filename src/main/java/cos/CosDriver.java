@@ -30,8 +30,8 @@ import java.util.concurrent.Executors;
  * Created by zhou1 on 2019/5/23.
  */
 public class CosDriver {
-    static String bucketName = "test-1255000077"; //桶的名称
-    static String region = "shanghai";//区域北京则  beijing
+    static String bucketName = "test-1255000077";
+    static String region = "shanghai";
     static String endPointSuffix = "cos.shanghai.tce.yonghuicloud.cn";
 
     static COSCredentials cred = null;
@@ -39,23 +39,16 @@ public class CosDriver {
     static COSClient cosClient = null;
 
     public static void main(String[] args) {
-        // 1 初始化用户身份信息(secretId, secretKey)
-        //SecretId 是用于标识 API 调用者的身份
         String SecretId = "AKID0g0yaqxIUw2mBEsGGwjAG2SYJilkCeZ8";
-        //SecretKey是用于加密签名字符串和服务器端验证签名字符串的密钥
         String SecretKey = "PTBXXCVS4KEn0rMVIkqay0h21eW3E3Xf";
         cred = new BasicCOSCredentials(SecretId, SecretKey);
 
-        // 2 设置bucket的区域,
         ClientConfig clientConfig = new ClientConfig(new Region(region));
         EndpointBuilder yonghuiEndpointBuilder = new SuffixEndpointBuilder(endPointSuffix);
         clientConfig.setEndpointBuilder(yonghuiEndpointBuilder);
 
-        // 3 生成cos客户端
         cosClient = new COSClient(cred, clientConfig);
-        // 指定要上传到 COS 上的路径
         ExecutorService threadPool = Executors.newFixedThreadPool(32);
-        // 传入一个 threadpool, 若不传入线程池, 默认 TransferManager 中会生成一个单线程的线程池。
         transferManager = new TransferManager(cosClient, threadPool);
 
 //        List<Bucket> myList = cosClient.listBuckets();

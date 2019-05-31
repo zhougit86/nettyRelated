@@ -1,7 +1,5 @@
 package cliutil.parquetutil;
 
-import com.twitter.bijection.Injection;
-import com.twitter.bijection.avro.GenericAvroCodecs;
 import org.apache.avro.generic.GenericRecord;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -70,8 +68,8 @@ public class MyParquetReader {
 
         GenericRecord record;
         while ( (record = avroParquetReader.read()) !=null){
-            Injection<GenericRecord, byte[]> recordInjection = GenericAvroCodecs.toBinary(record.getSchema());
-            byte[] recordBinary = recordInjection.apply(record);
+//            Injection<GenericRecord, byte[]> recordInjection = GenericAvroCodecs.toBinary(record.getSchema());
+//            byte[] recordBinary = recordInjection.apply(record);
             System.err.println(record.getClass());
 //            System.err.println(new String(recordBinary));
 //            System.err.println(recordInjection.invert(recordBinary).get());

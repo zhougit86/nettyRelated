@@ -5,7 +5,6 @@ import java.util.Random;
 
 public class ThreadLocalExample implements Runnable{
 
-    // SimpleDateFormat 不是线程安全的，所以每个线程都要有自己独立的副本
     private static final ThreadLocal<SimpleDateFormat> formatter = ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyyMMdd HHmm"));
 
     public static void main(String[] args) throws InterruptedException {
