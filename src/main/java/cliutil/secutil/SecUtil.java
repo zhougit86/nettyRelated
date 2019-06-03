@@ -142,7 +142,7 @@ public class SecUtil {
 
     public static void main(String[] args) throws Exception{
         SecUtil se = new SecUtil();
-        String encodeRules = "encodeRules";
+        String encodeRules = "ABC";
         String content = "设计方案 电风扇地方舒服的 DSFSDKFJLSDJFSKJFLSDKFJLSKJFJSDLFJSDFJSJDFKDSFLKDSJLFJSDLKFJSLJ（）P「AS……T" +
                 "设计方案 电风扇地方舒服的 DSFSDKFJLSDJFSKJFLSDKFJLSKJFJSDLFJSDFJSJDFKDSFLKDSJLFJSDLKFJSLJ（）P「AS……T" +
                 "设计方案 电风扇地方舒服的 DSFSDKFJLSDJFSKJFLSDKFJLSKJFJSDLFJSDFJSJDFKDSFLKDSJLFJSDLKFJSLJ（）P「AS……T"+
@@ -154,31 +154,17 @@ public class SecUtil {
                 "设计方案 电风扇地方舒服的 DSFSDKFJLSDJFSKJFLSDKFJLSKJFJSDLFJSDFJSJDFKDSFLKDSJLFJSDLKFJSLJ（）P「AS……T"+
                 "设计方案 电风扇地方舒服的 DSFSDKFJLSDJFSKJFLSDKFJLSKJFJSDLFJSDFJSJDFKDSFLKDSJLFJSDLKFJSLJ（）P「AS……T"+
                 "设计方案 电风扇地方舒服的 DSFSDKFJLSDJFSKJFLSDKFJLSKJFJSDLFJSDFJSJDFKDSFLKDSJLFJSDLKFJSLJ（）P「AS……T";
-        System.out.println(se.AESEncode(encodeRules,content));
-        String result = "9X80zmi58z4dYLFSOE2V06RO9f6eAPjI7LNo3OKeUINKQlwP6t/8SOOy/g82BdokOEct4i9eKg9f\n" +
-                "bvwPOJOl0ih/vuE5VPWW6NfVA2kSzD2MTUUd/vSintvqNpQ78F4v07tNHBK+UeLvj6N+4evayj1A\n" +
-                "tTdQ0bQNOGlxiSNgF5z/ChZdvt2e0TbGwt9CC1L5dgj5I5eNi2fP7Ftk/WQZRa42USB/aLxwkHJh\n" +
-                "Ls66qiMX2OGRAqLFTL8Eq82xIks+8qvJ1AQrxpUQd7DU2moPTFG5BYoRYa/H4RTR66MI3ZVH+Rlg\n" +
-                "Y7SB1hog+HCJ9oF09X80zmi58z4dYLFSOE2V06RO9f6eAPjI7LNo3OKeUINKQlwP6t/8SOOy/g82\n" +
-                "BdokOEct4i9eKg9fbvwPOJOl0ih/vuE5VPWW6NfVA2kSzD2MTUUd/vSintvqNpQ78F4v07tNHBK+\n" +
-                "UeLvj6N+4evayj1AtTdQ0bQNOGlxiSNgF5z/ChZdvt2e0TbGwt9CC1L5dgj5I5eNi2fP7Ftk/WQZ\n" +
-                "Ra42USB/aLxwkHJhLs66qiMX2OGRAqLFTL8Eq82xIks+8qvJ1AQrxpUQd7DU2moPTFG5BYoRYa/H\n" +
-                "4RTR66MI3ZVH+RlgY7SB1hog+HCJ9oF09X80zmi58z4dYLFSOE2V06RO9f6eAPjI7LNo3OKeUINK\n" +
-                "QlwP6t/8SOOy/g82BdokOEct4i9eKg9fbvwPOJOl0ih/vuE5VPWW6NfVA2kSzD2MTUUd/vSintvq\n" +
-                "NpQ78F4v07tNHBK+UeLvj6N+4evayj1AtTdQ0bQNOGlxiSNgF5z/ChZdvt2e0TbGwt9CC1L5dgj5\n" +
-                "I5eNi2fP7Ftk/WQZRa42USB/aLxwkHJhLs66qiMX2OGRAqLFTL8Eq82xIks+8qvJ1AQrxpUQd7DU\n" +
-                "2moPTFG5BYoRYa/H4RTR66MI3ZVH+RlgY7SB1hog+HCJ9oF09X80zmi58z4dYLFSOE2V06RO9f6e\n" +
-                "APjI7LNo3OKeUINKQlwP6t/8SOOy/g82BdokOEct4i9eKg9fbvwPOJOl0ih/vuE5VPWW6NfVA2kS\n" +
-                "zD2MTUUd/vSintvqNpQ78F4v07tNHBK+UeLvj6N+4evayj1AtTdQ0bQNOGlxiSNgF5z/ChZdvt2e\n" +
-                "0TbGwt9CC1L5dgj5I5eNi2fP7Ftk/WQZRa42USB/aLxwkHJhLs66qiMX2OGRAqLFTL8Eq82xIks+\n" +
-                "8qvJ1AQrxpUQd7DU2moPTFG5BYoRYa/H4RTR66MI3ZVH+RlgY7SB1hog+HCJ9oF09X80zmi58z4d\n" +
-                "YLFSOE2V06RO9f6eAPjI7LNo3OKeUINKQlwP6t/8SOOy/g82BdokOEct4i9eKg9fbvwPOJOl0ih/\n" +
-                "vuE5VPWW6NfVA2kSzD2MTUUd/vSintvqNpQ78F4v07tNHBK+UeLvj6N+4evayj1AtTdQ0bQNOGlx\n" +
-                "iSNgF5z/ChZdvt2e0TbGwt9CC1L5dgj5I5eNi2fP7Ftk/WQZRa42USB/aLxwkHJhLs66qiMX2OGR\n" +
-                "AqLFTL8Eq82xIks+8qvJ1AQrxpUQd7DU2moPTFG5BYoRYa/H4RTR66MI3ZVH+RlgY7SB1hog+HCJ\n" +
-                "9oF09X80zmi58z4dYLFSOE2V06RO9f6eAPjI7LNo3OKeUINKQlwP6t/8SOOy/g82BdokOEct4i9e\n" +
-                "Kg9fbvwPOJOl0ih/vuE5VPWW6NfVA2kSzD2MTUUd/vSintvqNpQ78F4v07tNHBK+UeLvj6N+4eva\n" +
-                "yq/TwhhegaapLX+A+e1K26o=";
+//        System.out.println(se.AESEncode(encodeRules,content));
+        String result = "dX7mlPwASveml71noW2sHGd2ByEt3YrIe3Qd4yIGtxjGh+51M0m8x5SlRheezfKvKgEeKFy1vjqG\n" +
+                "pJfO7bymXCnO96/tjD+dL6ut4lWSdqUm9DpacSwRkWJn6QYd1KyiX3XF0fRQpGkyqGRB+05BDId/\n" +
+                "HeM0t0ZaPb6uFUGUdyjnFqlMIf0+Uxzr+bEPA6jDkOj3u8rc3yCNfoPLD4TVIwQ39dW5gnrYZzwE\n" +
+                "VFny0CKk5onPvbRKy+tnVUSNN14b2maf9D3cqHGP/MZxRpAu8GMcPtLIwwfVDhjSJFdnjtzAZtDV\n" +
+                "LNLUEx9voh6Mzi9p\n" +
+                "dX7mlPwASveml71noW2sHLDJhBJTBvlaLRwushEgeC84maKntX40VqyhphuvJboNzSyAT5E78sDG\n" +
+                "CC9IEOT+OXm6SU3p811kTEOJ84a+C+28trBTrF0IJVbfwGFLMlV8lpxp3x8Y2571FheJHd0RYY7R\n" +
+                "HhxWhSML8Wbqdz06cTGYmMbTEX+BhjSQOkVULTi8l3ZO2ESaYw9NpKY+1qEe3oxhJvc5mF6BCtoT\n" +
+                "oKqssGIMqMEG3MW8FdcZqokKzyKV3lDdJj3LeZjTd3dAroPnxZ2vPVheb8cTfXBTzUUJFgM/GSX9\n" +
+                "ij08/B8nDUJiA9mEU5bYYpdH0Def4pVScGOFGA==";
         System.out.println(se.AESDncode(encodeRules,result));
     }
 }

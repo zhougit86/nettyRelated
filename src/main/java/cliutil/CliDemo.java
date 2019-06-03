@@ -1,5 +1,6 @@
 package cliutil;
 
+import cliutil.config.CKConfig;
 import cliutil.cosutil.CosUtil;
 import cliutil.hdfsutil.HdfsUtil;
 import cliutil.kafkautil.MyKafkaProduce;
@@ -8,10 +9,13 @@ import org.apache.hadoop.fs.FileStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.security.auth.login.Configuration;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedList;
+import java.util.Properties;
 
 /**
  * Created by zhou1 on 2019/5/27.
@@ -29,8 +33,8 @@ public class CliDemo {
     private static Option opt_kfkip = new Option("kip","kafkaip",true ,"kafka broker ip, eg:192.168.13.128:9092");
     private static Option opt_kfktopic = new Option("kt","kafkatopic",true ,"kafka topic, eg:demo_topic");
 
-    private static Option opt_aes_key = new Option( "k","aes_key"
-            ,true, "key of AES" );
+    private static Option opt_prop = new Option( "prop","properties"
+            ,true, "properties file" );
 
     private static String hdfsUrl;
     private static String hdfsPath;
@@ -38,7 +42,7 @@ public class CliDemo {
     private static String executeName;
     private static String kafkaBrokerIp;
     private static String kafkaTopic;
-    private static String AES_KEY;
+    private static String PROP_FILE;
 
     static {
 
@@ -48,7 +52,7 @@ public class CliDemo {
         opt_name.setRequired(true);
         opt_kfkip.setRequired(true);
         opt_kfktopic.setRequired(true);
-        opt_aes_key.setRequired(true);
+        opt_prop.setRequired(true);
 
         opts.addOption(opt_hdfs);
         opts.addOption(opt_path);
@@ -56,10 +60,10 @@ public class CliDemo {
         opts.addOption(opt_name);
         opts.addOption(opt_kfkip);
         opts.addOption(opt_kfktopic);
-        opts.addOption(opt_aes_key);
+        opts.addOption(opt_prop);
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException {
 
         LinkedList<FileStatus> fileList = new LinkedList<>();
 
@@ -81,7 +85,9 @@ public class CliDemo {
         kafkaBrokerIp = line.getOptionValue("kip");
         kafkaTopic = line.getOptionValue("kt");
         filePattern = line.getOptionValue("pt")==null ? ".*":line.getOptionValue("pt");
-        AES_KEY = line.getOptionValue("k");
+        PROP_FILE = line.getOptionValue("prop");
+
+        Properties prop = CKConfig.getProp(PROP_FILE);
 
         DateFormat simpleFormat = new SimpleDateFormat("YYMMdd-HHmmss");
         String dateString = simpleFormat.format(Calendar.getInstance().getTime());
@@ -103,7 +109,7 @@ public class CliDemo {
 
         //todo:check the total volume of all the files
 
-        MyKafkaProduce myKafkaProducer = new MyKafkaProduce(hdfsUtil,kafkaBrokerIp,kafkaTopic,AES_KEY);
+        MyKafkaProduce myKafkaProducer = new MyKafkaProduce(hdfsUtil,kafkaBrokerIp,kafkaTopic,prop);
         for (FileStatus fileStatus: fileList){
             LOG.info("handling file {}",fileStatus.getPath().toString());
             myKafkaProducer.avroProduce(fileStatus);

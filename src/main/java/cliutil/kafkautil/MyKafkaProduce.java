@@ -23,6 +23,9 @@ import java.util.Properties;
 public class MyKafkaProduce {
     private static Logger LOG = LoggerFactory.getLogger(MyKafkaProduce.class);
 
+    private final static String AES_KEY = "aes.key";
+    private final static  String SASL_JAAS_CONFIG = "sasl.jaas.config";
+
     private String topic;
     private String kfkAddr;
 
@@ -32,19 +35,20 @@ public class MyKafkaProduce {
     private HdfsUtil hdfsUtil;
     private SecUtil se;
     private String aes_key;
+    private String saslConfig;
 
-    public MyKafkaProduce(HdfsUtil hdfsUtilInput, String kfkAddrInput, String topicInput, String aes_key) {
+    public MyKafkaProduce(HdfsUtil hdfsUtilInput, String kfkAddrInput, String topicInput, Properties prop) {
         this.kfkAddr = kfkAddrInput;
         this.topic = topicInput;
         se = new SecUtil();
-        this.aes_key = aes_key;
+        this.aes_key = prop.getProperty(AES_KEY);
+        this.saslConfig = prop.getProperty(SASL_JAAS_CONFIG);
 
         Properties props = new Properties();
         try {
             ClassLoader classLoader = getClass().getClassLoader();
-            URL url = classLoader.getResource("jaas.properties");
 
-            props.load(new FileInputStream(url.getFile()));
+            props.load(classLoader.getResourceAsStream("jaas.properties"));
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
@@ -52,7 +56,7 @@ public class MyKafkaProduce {
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kfkAddr);
 //        props.put("acks", "all");
         props.put(ProducerConfig.RETRIES_CONFIG, 1);
-        props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
+        props.put(ProducerConfig.BATCH_SIZE_CONFIG, 32384);
         props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
         props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -60,8 +64,9 @@ public class MyKafkaProduce {
 //        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
 //        props.put("min.insync.replicas",3);
 
-        props.put("sasl.jaas.config",
-                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"ckafka-g0widy27#yonghui_yunchao\" password=\"yonghuitencent123\";");
+//        props.put("sasl.jaas.config",
+//                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"ckafka-g0widy27#yonghui_yunchao\" password=\"yonghuitencent123\";");
+        props.put("sasl.jaas.config",saslConfig);
         producer = new org.apache.kafka.clients.producer.KafkaProducer<String, String>(props);
         hdfsUtil = hdfsUtilInput;
     }
