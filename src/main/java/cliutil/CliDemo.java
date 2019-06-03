@@ -5,6 +5,7 @@ import cliutil.cosutil.CosUtil;
 import cliutil.hdfsutil.HdfsUtil;
 import cliutil.kafkautil.MyKafkaProduce;
 import org.apache.commons.cli.*;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.fs.FileStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,42 +26,51 @@ public class CliDemo {
 
     private static Options opts = new Options();
 
-    private static Option opt_hdfs = new Option("hd","hdfs",true ,"hdfs ip, eg:192.168.13.128:9000");
-    private static Option opt_path = new Option("p","path",true ,"hdfs path, eg:/tmp");
-    private static Option opt_pattern = new Option("pt","pattern",true ,"hdfs pattern, eg:.*");
-    private static Option opt_name = new Option( "n","name"
-            ,true, "name for this specific run" );
-    private static Option opt_kfkip = new Option("kip","kafkaip",true ,"kafka broker ip, eg:192.168.13.128:9092");
-    private static Option opt_kfktopic = new Option("kt","kafkatopic",true ,"kafka topic, eg:demo_topic");
+//    private static Option opt_hdfs = new Option("hd", "hdfs", true, "hdfs ip, eg:192.168.13.128:9000");
+//    private static Option opt_path = new Option("p", "path", true, "hdfs path, eg:/tmp");
+//    private static Option opt_pattern = new Option("pt", "pattern", true, "hdfs pattern, eg:.*");
+//    private static Option opt_name = new Option("n", "name"
+//            , true, "name for this specific run");
+//    private static Option opt_kfkip = new Option("kip", "kafkaip", true, "kafka broker ip, eg:192.168.13.128:9092");
+//    private static Option opt_kfktopic = new Option("kt", "kafkatopic", true, "kafka topic, eg:demo_topic");
 
-    private static Option opt_prop = new Option( "prop","properties"
-            ,true, "properties file" );
+    private static Option opt_prop = new Option("prop", "properties"
+            , true, "properties file");
 
     private static String hdfsUrl;
     private static String hdfsPath;
+    private static String hdfsSnapshotDir;
     private static String filePattern;
     private static String executeName;
     private static String kafkaBrokerIp;
     private static String kafkaTopic;
-    private static String PROP_FILE;
+    private static String propFile;
+
+    private static final String HDFS_IP = "hdfsip";
+    private static final String HDFS_PATH = "hdfspath";
+    private static final String HDFS_SNAP_DIR = "hdfssnapshotdir";
+    private static final String FILE_PATTERN = "filepattern";
+    private static final String EXECUTE_NAME = "executename";
+    private static final String KAFKA_IP = "kafkaip";
+    private static final String KAFKA_TOPIC = "kafkatopic";
+
+    private static Properties prop = new Properties();
+    private static final String DATE_FORMAT = "YYMMdd_HHmmss";
 
     static {
-
-        opt_hdfs.setRequired(true);
-        opt_path.setRequired(true);
-        opt_pattern.setRequired(false);
-        opt_name.setRequired(true);
-        opt_kfkip.setRequired(true);
-        opt_kfktopic.setRequired(true);
         opt_prop.setRequired(true);
-
-        opts.addOption(opt_hdfs);
-        opts.addOption(opt_path);
-        opts.addOption(opt_pattern);
-        opts.addOption(opt_name);
-        opts.addOption(opt_kfkip);
-        opts.addOption(opt_kfktopic);
         opts.addOption(opt_prop);
+    }
+
+    private static String initConfig(String configName){
+        String configValue = prop.getProperty(configName);
+        if (StringUtils.isEmpty(configValue)){
+            LOG.error("{} 配置不能为空");
+            System.exit(1);
+        }
+        LOG.info("{} 配置的值为 {}",configName,configValue);
+
+        return configValue;
     }
 
     public static void main(String[] args) throws IOException {
@@ -76,45 +86,61 @@ public class CliDemo {
             HelpFormatter formater = new HelpFormatter();
             formater.printHelp("Main", opts);
             System.exit(1);
-            e.printStackTrace();
         }
 
-        hdfsUrl = line.getOptionValue("hd");
-        hdfsPath = line.getOptionValue("p");
-        executeName = line.getOptionValue("n");
-        kafkaBrokerIp = line.getOptionValue("kip");
-        kafkaTopic = line.getOptionValue("kt");
-        filePattern = line.getOptionValue("pt")==null ? ".*":line.getOptionValue("pt");
-        PROP_FILE = line.getOptionValue("prop");
+        propFile = line.getOptionValue("prop");
+        prop = CKConfig.getProp(propFile);
 
-        Properties prop = CKConfig.getProp(PROP_FILE);
+        hdfsUrl = initConfig(HDFS_IP);
+        hdfsPath = initConfig(HDFS_PATH);
+        hdfsSnapshotDir = initConfig(HDFS_SNAP_DIR);
+        executeName = initConfig(EXECUTE_NAME);
+        kafkaBrokerIp = initConfig(KAFKA_IP);
+        kafkaTopic = initConfig(KAFKA_TOPIC);
+        filePattern = initConfig(FILE_PATTERN);
 
-        DateFormat simpleFormat = new SimpleDateFormat("YYMMdd-HHmmss");
+        DateFormat simpleFormat = new SimpleDateFormat(DATE_FORMAT);
         String dateString = simpleFormat.format(Calendar.getInstance().getTime());
 
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(dateString);
-        stringBuffer.append("-");
+        stringBuffer.append("_");
         stringBuffer.append(executeName);
         executeName = stringBuffer.toString();
 
 
-        if (hdfsUrl.indexOf("hdfs")<0){
-            hdfsUrl= "hdfs://" + hdfsUrl;
+        if (hdfsUrl.indexOf("hdfs") < 0) {
+            hdfsUrl = "hdfs://" + hdfsUrl;
         }
-        LOG.info("{}: need to copy {} on {} match {}",executeName,hdfsPath,hdfsUrl,filePattern);
+        if (!hdfsSnapshotDir.startsWith("\\")){
+            LOG.error("镜像文件路径非法 {}",hdfsSnapshotDir);
+        }
+        hdfsSnapshotDir = String.format("%s/%s",hdfsSnapshotDir,executeName);
 
-        HdfsUtil hdfsUtil = new HdfsUtil(hdfsUrl,hdfsPath,filePattern);
+        LOG.info("{}: 需要同步 {} 目录 {} 符合文件名样式 {}", executeName, hdfsPath, hdfsUrl, filePattern);
+
+        HdfsUtil hdfsUtil = new HdfsUtil(hdfsUrl, hdfsPath, filePattern);
         hdfsUtil.generateFileList(fileList);
+
+        fileList.stream().forEach(fileStatus -> LOG.info("需要同步的文件： {}",fileStatus.getPath()));
+
 
         //todo:check the total volume of all the files
 
-        MyKafkaProduce myKafkaProducer = new MyKafkaProduce(hdfsUtil,kafkaBrokerIp,kafkaTopic,prop);
-        for (FileStatus fileStatus: fileList){
-            LOG.info("handling file {}",fileStatus.getPath().toString());
+        MyKafkaProduce myKafkaProducer = new MyKafkaProduce(hdfsUtil, kafkaBrokerIp, kafkaTopic, prop);
+        for (FileStatus fileStatus : fileList) {
+            String sourceFileLocation = fileStatus.getPath().toString();
+            String targetFileLocation =String.format("%s%s",hdfsSnapshotDir,sourceFileLocation.replace(hdfsUrl,""));
+            LOG.info("handling file {}", sourceFileLocation);
             myKafkaProducer.avroProduce(fileStatus);
 //            CosUtil.initBackUpDir(executeName, fileStatus, hdfsUtil.fs );
-            LOG.info("handling file finish {}",fileStatus.getPath().toString());
+
+            try{
+                hdfsUtil.copyFileToSnapshot(sourceFileLocation, targetFileLocation);
+            }catch (Exception e){
+                LOG.error("{} 移动异常 {}",sourceFileLocation,e.getMessage());
+            }
+            LOG.info("handling file finish {}", sourceFileLocation);
         }
 
         CosUtil.closeClient();

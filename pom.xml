@@ -70,7 +70,6 @@
             <!--<version>0.6.3</version>-->
         <!--</dependency>-->
 
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>

@@ -44,30 +44,29 @@ public class MyKafkaProduce {
         this.aes_key = prop.getProperty(AES_KEY);
         this.saslConfig = prop.getProperty(SASL_JAAS_CONFIG);
 
-        Properties props = new Properties();
+        Properties kafkaProps = new Properties();
         try {
             ClassLoader classLoader = getClass().getClassLoader();
-
-            props.load(classLoader.getResourceAsStream("jaas.properties"));
+            kafkaProps.load(classLoader.getResourceAsStream("jaas.properties"));
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
         }
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kfkAddr);
+        kafkaProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kfkAddr);
 //        props.put("acks", "all");
-        props.put(ProducerConfig.RETRIES_CONFIG, 1);
-        props.put(ProducerConfig.BATCH_SIZE_CONFIG, 32384);
-        props.put(ProducerConfig.LINGER_MS_CONFIG, 1);
-        props.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        kafkaProps.put(ProducerConfig.RETRIES_CONFIG, 1);
+        kafkaProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 32384);
+        kafkaProps.put(ProducerConfig.LINGER_MS_CONFIG, 1);
+        kafkaProps.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+        kafkaProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        kafkaProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
 //        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, ByteArraySerializer.class);
 //        props.put("min.insync.replicas",3);
 
 //        props.put("sasl.jaas.config",
 //                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"ckafka-g0widy27#yonghui_yunchao\" password=\"yonghuitencent123\";");
-        props.put("sasl.jaas.config",saslConfig);
-        producer = new org.apache.kafka.clients.producer.KafkaProducer<String, String>(props);
+        kafkaProps.put("sasl.jaas.config",saslConfig);
+        producer = new org.apache.kafka.clients.producer.KafkaProducer<String, String>(kafkaProps);
         hdfsUtil = hdfsUtilInput;
     }
 
@@ -104,67 +103,5 @@ public class MyKafkaProduce {
             }
         }
     }
-
-//    public void produce(FileStatus fileStatus){
-//
-//        ByteBuffer byteBuffer = ByteBuffer.allocate(bufSize);
-//        byte[] bytes = new byte[bufSize];
-//        MyReader reader = null;
-//        try{
-//            reader = new MyReader(fileStatus, hdfsUtil.fs);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//            return;
-//        }
-//
-//        try{
-//            while (true){
-//                int length =reader.read(byteBuffer);
-//                if (length == -1){
-//                    producer.send(new ProducerRecord<String, byte[]>(TOPIC
-//                            ,"end",null)).get();
-//                    break;
-//                }
-//                byteBuffer.flip();
-//
-//
-//                if (length == bufSize){
-//                    byteBuffer.get(bytes,0,length);
-//                    producer.send(new ProducerRecord<String, byte[]>(TOPIC
-//                            ,fileStatus.getPath().getName(),bytes)).get();
-//                }else {
-//
-//                    byteBuffer.get(bytes,0,length);
-//                    byte[] results = Arrays.copyOfRange(bytes, 0, length);
-//                    producer.send(new ProducerRecord<String, byte[]>(TOPIC
-//                            ,fileStatus.getPath().getName(),results)).get();
-//                }
-//                byteBuffer.clear();
-//            }
-//
-//        }catch (InterruptedException e) {
-//            e.printStackTrace();
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();
-//        } catch (IOException e){
-//            e.printStackTrace();
-//        }finally {
-//            try{
-//                reader.close();
-//            }catch (IOException e){
-//
-//            }
-//        }
-//
-////        try{
-////            System.out.println(f.get());
-////            System.out.println(key);
-////        }catch (Exception e){
-////
-////        }
-//
-////        producer.close();
-//    }
-
 
 }

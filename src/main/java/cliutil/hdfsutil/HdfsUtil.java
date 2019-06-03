@@ -62,4 +62,19 @@ public class HdfsUtil {
         traverseDir(list,new Path(hdfsPath));
     }
 
+    public void copyFileToSnapshot(String source, String target) throws IOException{
+        Path targetPath = new Path(target);
+        fs.mkdirs(targetPath.getParent());
+
+        if (fs.rename(new Path(source),new Path(target))){
+            LOG.info("{} 快照移动成功", source);
+        }else {
+            LOG.error("{} 快照移动失败", source);
+        }
+
+//        fs.copyToLocalFile(new Path(source),new Path(target));
+//        DistCp myDistCp = new DistCp(config, new DistCpOptions(new Path(source),new Path(target)));
+//        myDistCp.execute();
+    }
+
 }
