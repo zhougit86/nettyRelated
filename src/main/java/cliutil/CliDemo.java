@@ -46,13 +46,13 @@ public class CliDemo {
     private static String kafkaTopic;
     private static String propFile;
 
-    private static final String HDFS_IP = "hdfsip";
-    private static final String HDFS_PATH = "hdfspath";
-    private static final String HDFS_SNAP_DIR = "hdfssnapshotdir";
-    private static final String FILE_PATTERN = "filepattern";
-    private static final String EXECUTE_NAME = "executename";
-    private static final String KAFKA_IP = "kafkaip";
-    private static final String KAFKA_TOPIC = "kafkatopic";
+    private static final String HDFS_IP = "hdfs.ip";
+    private static final String HDFS_PATH = "hdfs.path";
+    private static final String HDFS_SNAP_DIR = "hdfs.snapshot.dir";
+    private static final String FILE_PATTERN = "file.pattern";
+    private static final String EXECUTE_NAME = "execute.name";
+    private static final String KAFKA_IP = "kafka.ip";
+    private static final String KAFKA_TOPIC = "kafka.topic";
 
     private static Properties prop = new Properties();
     private static final String DATE_FORMAT = "YYMMdd_HHmmss";
