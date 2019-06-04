@@ -66,7 +66,7 @@ public class HdfsUtil {
         Path targetPath = new Path(target);
         boolean mkdirResult = fs.mkdirs(targetPath.getParent());
         if (!mkdirResult){
-            LOG.error("创建目录失败",targetPath.getParent());
+            LOG.error("创建目录 {} 失败",targetPath.getParent());
         }
 
         if (fs.rename(new Path(source),new Path(target))){
