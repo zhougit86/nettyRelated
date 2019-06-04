@@ -64,7 +64,10 @@ public class HdfsUtil {
 
     public void copyFileToSnapshot(String source, String target) throws IOException{
         Path targetPath = new Path(target);
-        fs.mkdirs(targetPath.getParent());
+        boolean mkdirResult = fs.mkdirs(targetPath.getParent());
+        if (!mkdirResult){
+            LOG.error("创建目录失败",targetPath.getParent());
+        }
 
         if (fs.rename(new Path(source),new Path(target))){
             LOG.info("{} 快照移动成功", source);

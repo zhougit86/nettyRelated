@@ -112,8 +112,9 @@ public class CliDemo {
         if (hdfsUrl.indexOf("hdfs") < 0) {
             hdfsUrl = "hdfs://" + hdfsUrl;
         }
-        if (!hdfsSnapshotDir.startsWith("\\")){
-            LOG.error("镜像文件路径非法 {}",hdfsSnapshotDir);
+        if (!hdfsSnapshotDir.startsWith("/")){
+            LOG.error("快照文件路径非法 {}",hdfsSnapshotDir);
+            System.exit(1);
         }
         hdfsSnapshotDir = String.format("%s/%s",hdfsSnapshotDir,executeName);
 
