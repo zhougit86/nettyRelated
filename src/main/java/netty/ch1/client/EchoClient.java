@@ -24,6 +24,7 @@ public class EchoClient {
 
     public void start() throws Exception{
         EventLoopGroup group = new NioEventLoopGroup();
+
         try{
             Bootstrap b = new Bootstrap();
             b.group(group)
@@ -35,6 +36,7 @@ public class EchoClient {
                             ch.pipeline().addLast(new EchoClientHandler());
                         }
                     });
+
             ChannelFuture f = b.connect().sync();
             f.channel().closeFuture().sync();
         }finally {
