@@ -2,6 +2,8 @@ package netty.ch4.oio;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.oio.OioEventLoopGroup;
 
 import java.nio.charset.Charset;
 
@@ -13,6 +15,8 @@ public class NettyOioServer {
         final ByteBuf buf = Unpooled.unreleasableBuffer(
                 Unpooled.copiedBuffer("Hi!\r\n", Charset.forName("UTF-8"))
         );
+        //netty修改程序是同步还是异步只需要将group和channel从Nio和Oio之间修改就可以了
+        EventLoopGroup group = new OioEventLoopGroup();
 
 
     }
