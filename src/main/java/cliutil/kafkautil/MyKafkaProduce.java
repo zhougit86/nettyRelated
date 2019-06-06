@@ -87,6 +87,7 @@ public class MyKafkaProduce {
                     producer.send(new ProducerRecord<>(this.topic
                             , "", se.AESEncode(this.aes_key,record.toString())));
                 } catch (Exception e) {
+                    e.printStackTrace();
                     LOG.error("send {} record to kafka error: {}", fileStatus.getPath(), e.getMessage());
                 }
             }
