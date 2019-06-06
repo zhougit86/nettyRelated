@@ -85,7 +85,7 @@ public class MyKafkaProduce {
 //                            ,fileKey,record.toString())).get();
 
                     producer.send(new ProducerRecord<>(this.topic
-                            , "", se.AESEncode(this.aes_key,record.toString()))).get();
+                            , "", se.AESEncode(this.aes_key,record.toString())));
                 } catch (Exception e) {
                     LOG.error("send {} record to kafka error", fileStatus.getPath());
                 }
@@ -94,6 +94,7 @@ public class MyKafkaProduce {
         } catch (IOException e) {
             LOG.error("read parquet file {} failed", fileStatus.getPath());
         }finally {
+            producer.close();
             if (myParquetReader!=null){
                 try{
                     myParquetReader.close();
