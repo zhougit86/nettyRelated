@@ -101,7 +101,7 @@ public class MyKafkaProduce {
             if (sendingFuture !=null){
                 try{
                     sendingFuture.get();
-                    Thread.sleep(TimeUnit.SECONDS.toMillis(2));
+//                    Thread.sleep(TimeUnit.SECONDS.toMillis(2));
                 }catch (InterruptedException e){
                     e.printStackTrace();
                 }catch (ExecutionException e){
