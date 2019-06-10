@@ -128,8 +128,9 @@ public class CliDemo {
 
         //todo:check the total volume of all the files
 
-        MyKafkaProduce myKafkaProducer = new MyKafkaProduce(hdfsUtil, kafkaBrokerIp, kafkaTopic, prop);
+
         for (FileStatus fileStatus : fileList) {
+            MyKafkaProduce myKafkaProducer = new MyKafkaProduce(hdfsUtil, kafkaBrokerIp, kafkaTopic, prop);
             String sourceFileLocation = fileStatus.getPath().toString();
             String targetFileLocation =String.format("%s%s",hdfsSnapshotDir,sourceFileLocation.replace(hdfsUrl,""));
             LOG.info("handling file {}", sourceFileLocation);
