@@ -19,6 +19,7 @@ import java.net.URL;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by zhou1 on 2018/11/13.
@@ -100,6 +101,7 @@ public class MyKafkaProduce {
             if (sendingFuture !=null){
                 try{
                     sendingFuture.get();
+                    Thread.sleep(TimeUnit.SECONDS.toMillis(2));
                 }catch (InterruptedException e){
                     e.printStackTrace();
                 }catch (ExecutionException e){
