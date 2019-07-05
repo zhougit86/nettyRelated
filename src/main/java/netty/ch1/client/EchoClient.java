@@ -38,7 +38,10 @@ public class EchoClient {
                     });
 
             ChannelFuture f = b.connect().sync();
+
+
             f.channel().closeFuture().sync();
+//            System.err.println("after read");
         }finally {
             group.shutdownGracefully().sync();
         }

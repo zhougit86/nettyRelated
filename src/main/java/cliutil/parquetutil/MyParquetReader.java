@@ -70,7 +70,7 @@ public class MyParquetReader {
         while ( (record = avroParquetReader.read()) !=null){
 //            Injection<GenericRecord, byte[]> recordInjection = GenericAvroCodecs.toBinary(record.getSchema());
 //            byte[] recordBinary = recordInjection.apply(record);
-            System.err.println(record.getClass());
+            System.err.println(record.getSchema().getFields().size());
 //            System.err.println(new String(recordBinary));
 //            System.err.println(recordInjection.invert(recordBinary).get());
         }
