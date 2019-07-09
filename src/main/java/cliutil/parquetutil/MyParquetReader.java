@@ -66,15 +66,18 @@ public class MyParquetReader {
                 new Path(new URI("hdfs://192.168.13.128:9000/par/000000_0")));
         ParquetReader<GenericRecord> avroParquetReader = avroParquetReaderBuilder.build();
 
+
+        int i =0;
         GenericRecord record;
         while ( (record = avroParquetReader.read()) !=null){
 //            Injection<GenericRecord, byte[]> recordInjection = GenericAvroCodecs.toBinary(record.getSchema());
 //            byte[] recordBinary = recordInjection.apply(record);
-            System.err.println(record.getClass());
+//            System.err.println(record.getClass());
+            i++;
 //            System.err.println(new String(recordBinary));
 //            System.err.println(recordInjection.invert(recordBinary).get());
         }
-
+        System.err.println(i);
         avroParquetReader.close();
     }
 

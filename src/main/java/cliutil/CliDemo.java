@@ -3,6 +3,7 @@ package cliutil;
 import cliutil.config.CKConfig;
 import cliutil.cosutil.CosUtil;
 import cliutil.hdfsutil.HdfsUtil;
+import cliutil.kafkautil.MyKafkaConsumer;
 import cliutil.kafkautil.MyKafkaProduce;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang.StringUtils;

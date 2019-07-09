@@ -57,10 +57,11 @@ public class MyKafkaProduce {
             System.exit(1);
         }
         kafkaProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kfkAddr);
-//        props.put("acks", "all");
+        kafkaProps.put(ProducerConfig.ACKS_CONFIG, 1);
         kafkaProps.put(ProducerConfig.RETRIES_CONFIG, 1);
         kafkaProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
-        kafkaProps.put(ProducerConfig.LINGER_MS_CONFIG, 0);
+        kafkaProps.put(ProducerConfig.LINGER_MS_CONFIG, 10);
+        kafkaProps.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 60000);
 //        kafkaProps.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
         kafkaProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         kafkaProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
