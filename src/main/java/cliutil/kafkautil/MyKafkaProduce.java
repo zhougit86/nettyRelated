@@ -10,12 +10,14 @@ import org.apache.hadoop.fs.FileStatus;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.PartitionInfo;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.net.URL;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -24,7 +26,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Created by zhou1 on 2018/11/13.
  */
-public class MyKafkaProduce {
+public class MyKafkaProduce implements Runnable {
     private static Logger LOG = LoggerFactory.getLogger(MyKafkaProduce.class);
 
     private final static String AES_KEY = "aes.key";
@@ -41,12 +43,13 @@ public class MyKafkaProduce {
     private String aes_key;
     private String saslConfig;
 
-    public MyKafkaProduce(HdfsUtil hdfsUtilInput, String kfkAddrInput, String topicInput, Properties prop) {
-        this.kfkAddr = kfkAddrInput;
-        this.topic = topicInput;
-        se = new SecUtil();
-        this.aes_key = prop.getProperty(AES_KEY);
-        this.saslConfig = prop.getProperty(SASL_JAAS_CONFIG);
+    private String hdfsSnapshotDir;
+    private String hdfsUrl;
+    private FileStatus fileStatus;
+
+
+    @Override
+    public void run(){
 
         Properties kafkaProps = new Properties();
         try {
@@ -57,11 +60,12 @@ public class MyKafkaProduce {
             System.exit(1);
         }
         kafkaProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kfkAddr);
-        kafkaProps.put(ProducerConfig.ACKS_CONFIG, 1);
-        kafkaProps.put(ProducerConfig.RETRIES_CONFIG, 1);
-        kafkaProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
-        kafkaProps.put(ProducerConfig.LINGER_MS_CONFIG, 10);
-        kafkaProps.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 60000);
+        kafkaProps.put(ProducerConfig.ACKS_CONFIG, "1");
+        kafkaProps.put(ProducerConfig.RETRIES_CONFIG, 999);
+        kafkaProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 163840);
+        kafkaProps.put(ProducerConfig.LINGER_MS_CONFIG, 20);
+        kafkaProps.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 120000);
+        kafkaProps.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
 //        kafkaProps.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
         kafkaProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         kafkaProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -72,12 +76,42 @@ public class MyKafkaProduce {
 //                "org.apache.kafka.common.security.plain.PlainLoginModule required username=\"ckafka-g0widy27#yonghui_yunchao\" password=\"yonghuitencent123\";");
         kafkaProps.put("sasl.jaas.config",saslConfig);
         producer = new org.apache.kafka.clients.producer.KafkaProducer<String, String>(kafkaProps);
+
+        String sourceFileLocation = fileStatus.getPath().toString();
+        String targetFileLocation =String.format("%s%s",hdfsSnapshotDir,sourceFileLocation.replace(hdfsUrl,""));
+        LOG.info("handling file {}", sourceFileLocation);
+        this.avroProduce(fileStatus);
+
+        try{
+            hdfsUtil.copyFileToSnapshot(sourceFileLocation, targetFileLocation);
+        }catch (Exception e){
+            LOG.error("{} 移动异常 {}",sourceFileLocation,e.getMessage());
+        }
+        LOG.info("handling file finish {}", sourceFileLocation);
+    }
+
+    public MyKafkaProduce(HdfsUtil hdfsUtilInput, String kfkAddrInput, String topicInput, Properties prop,
+                          String snapShotDir, String hdfsUrl, FileStatus fileStatus) {
+        this.hdfsSnapshotDir = snapShotDir;
+        this.hdfsUrl = hdfsUrl;
+        this.fileStatus = fileStatus;
+
+
+        this.kfkAddr = kfkAddrInput;
+        this.topic = topicInput;
+        se = new SecUtil();
+        this.aes_key = prop.getProperty(AES_KEY);
+        this.saslConfig = prop.getProperty(SASL_JAAS_CONFIG);
+
+
         hdfsUtil = hdfsUtilInput;
     }
 
     public void avroProduce(FileStatus fileStatus) {
         String fileKey = fileStatus.getPath().getName();
         MyParquetReader myParquetReader= null;
+        List<PartitionInfo> partitionInfoList = producer.partitionsFor(this.topic);
+        LOG.info("partition size is {}",partitionInfoList.size());
 
         try {
             myParquetReader = new MyParquetReader(fileStatus.getPath().toUri());
@@ -88,10 +122,9 @@ public class MyKafkaProduce {
             while ((record = myParquetReader.readRecord()) != null) {
 
                 try {
-//                    RecordMetadata result = producer.send(new ProducerRecord<String, String>(this.topic
-//                            ,fileKey,record.toString())).get();
                     sendingFuture = producer.send(new ProducerRecord<>(this.topic
-                            , "", se.AESEncode(this.aes_key,record.toString())));
+                            , null, se.AESEncode(this.aes_key,record.toString())),
+                            new MyKafkaCallback());
                 } catch (Exception e) {
                     e.printStackTrace();
                     LOG.error("send {} record to kafka error: {}", fileStatus.getPath(), e.getMessage());

@@ -3,7 +3,6 @@ package cliutil;
 import cliutil.config.CKConfig;
 import cliutil.cosutil.CosUtil;
 import cliutil.hdfsutil.HdfsUtil;
-import cliutil.kafkautil.MyKafkaConsumer;
 import cliutil.kafkautil.MyKafkaProduce;
 import org.apache.commons.cli.*;
 import org.apache.commons.lang.StringUtils;
@@ -11,13 +10,14 @@ import org.apache.hadoop.fs.FileStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.login.Configuration;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by zhou1 on 2019/5/27.
@@ -46,6 +46,7 @@ public class CliDemo {
     private static String kafkaBrokerIp;
     private static String kafkaTopic;
     private static String propFile;
+    private static String parallelism;
 
     private static final String HDFS_IP = "hdfs.ip";
     private static final String HDFS_PATH = "hdfs.path";
@@ -54,6 +55,7 @@ public class CliDemo {
     private static final String EXECUTE_NAME = "execute.name";
     private static final String KAFKA_IP = "kafka.ip";
     private static final String KAFKA_TOPIC = "kafka.topic";
+    private static final String PARALLELISM = "execute.parallelism";
 
     private static Properties prop = new Properties();
     private static final String DATE_FORMAT = "YYMMdd_HHmmss";
@@ -99,6 +101,7 @@ public class CliDemo {
         kafkaBrokerIp = initConfig(KAFKA_IP);
         kafkaTopic = initConfig(KAFKA_TOPIC);
         filePattern = initConfig(FILE_PATTERN);
+        parallelism = initConfig(PARALLELISM);
 
         DateFormat simpleFormat = new SimpleDateFormat(DATE_FORMAT);
         String dateString = simpleFormat.format(Calendar.getInstance().getTime());
@@ -125,27 +128,20 @@ public class CliDemo {
         hdfsUtil.generateFileList(fileList);
 
         fileList.stream().forEach(fileStatus -> LOG.info("需要同步的文件： {}",fileStatus.getPath()));
-
+        int paralNum = Integer.valueOf(parallelism);
 
         //todo:check the total volume of all the files
 
+        ExecutorService threadPool = Executors.newFixedThreadPool(paralNum);
 
         for (FileStatus fileStatus : fileList) {
-            MyKafkaProduce myKafkaProducer = new MyKafkaProduce(hdfsUtil, kafkaBrokerIp, kafkaTopic, prop);
-            String sourceFileLocation = fileStatus.getPath().toString();
-            String targetFileLocation =String.format("%s%s",hdfsSnapshotDir,sourceFileLocation.replace(hdfsUrl,""));
-            LOG.info("handling file {}", sourceFileLocation);
-            myKafkaProducer.avroProduce(fileStatus);
-//            CosUtil.initBackUpDir(executeName, fileStatus, hdfsUtil.fs );
+            MyKafkaProduce myKafkaProducer = new MyKafkaProduce(hdfsUtil, kafkaBrokerIp, kafkaTopic, prop,
+                    hdfsSnapshotDir,hdfsUrl,fileStatus);
 
-            try{
-                hdfsUtil.copyFileToSnapshot(sourceFileLocation, targetFileLocation);
-            }catch (Exception e){
-                LOG.error("{} 移动异常 {}",sourceFileLocation,e.getMessage());
-            }
-            LOG.info("handling file finish {}", sourceFileLocation);
+            threadPool.submit(myKafkaProducer);
         }
 
         CosUtil.closeClient();
+        threadPool.shutdown();
     }
 }

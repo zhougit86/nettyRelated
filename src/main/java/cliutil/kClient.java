@@ -12,6 +12,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 /**
@@ -93,6 +95,21 @@ public class kClient {
     }
 
     public static void main(String[] args) {
-        new kClient().consume();
+//        new kClient().consume();
+
+        ExecutorService threadPool = Executors.newFixedThreadPool(4);
+        for(int i=0;i<4;i++){
+            threadPool.submit(()->{
+                try{
+                    Thread.sleep(3000);
+                    System.err.println(Thread.currentThread());
+                }catch (InterruptedException e){
+
+                }
+            });
+
+        }
+
+        threadPool.shutdown();
     }
 }
